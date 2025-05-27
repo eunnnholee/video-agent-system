@@ -28,5 +28,5 @@ poetry.lock
 poetry.toml
 
 # ▶ 프로젝트 폴더
-data/
-sample_videos/
+# data/
+# sample_videos/
