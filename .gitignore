@@ -1,0 +1,32 @@
+# ▶ Python 기본
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+*.tmp
+
+# ▶ Streamlit 자동 캐시
+.streamlit/
+
+# ▶ Jupyter 관련 (혹시 사용한 경우)
+.ipynb_checkpoints/
+
+# ▶ 환경 관련
+.env
+.venv/
+venv/
+env/
+*.env
+
+# ▶ macOS, Windows
+.DS_Store
+Thumbs.db
+
+# ▶ Poetry 관련 (락파일은 포함, 가상환경은 제외)
+poetry.lock
+poetry.toml
+
+# ▶ 프로젝트 폴더
+data/
+sample_videos/
