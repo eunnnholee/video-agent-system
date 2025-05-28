@@ -1,9 +1,10 @@
-from typeing import TypeDict, Optionl
+from typing import TypedDict, Optional
 
-class VideoAgentState(TypeDict):
-    question: str
-    original_prompt: Optionl[str]
-    edited_prompt: Optionl[str]
-    diff: Optionl[list[str]]
-    video_path: Optionl[str]
-    save_comfirmed: Optionl[bool]
+class VideoAgentState(TypedDict):
+    user_input: str
+    original_prompt: Optional[str]
+    edited_prompt: Optional[str]
+    diff: Optional[list[str]]
+    video_path: Optional[str]
+    save_confirmed: Optional[bool]
+    history_guided_prompt: Optional[str]

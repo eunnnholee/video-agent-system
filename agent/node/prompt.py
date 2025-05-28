@@ -1,27 +1,29 @@
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from agent.state import VideoAgentState
 from pathlib import Path
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+import logging
 
-from dotenv import load_dotenv
-load_dotenv()
+logger = logging.getLogger(__name__)
 
+def generate_prompt_node(state: dict) -> dict:
+    user_input = state.get("user_input", "").strip()
+    if not user_input:
+        raise ValueError("user_input is required")
 
-def generate_prompt_node(state: VideoAgentState) -> VideoAgentState:
-    user_input = state["user_input"]
-    
-    # 프롬프트 템플릿 로드
-    TEMPLATE_PATH = Path("agent/templates/video_prompt.txt")
-    template_str = TEMPLATE_PATH.read_text(encoding="utf-8")
-    
+    logger.info(f"[Prompt Node] Received user_input: {user_input}")
+
+    # 템플릿 로드
+    template_path = Path("agent/templates/video_prompt.jinja")
+    template_str = template_path.read_text(encoding="utf-8")
     template = ChatPromptTemplate.from_template(template_str)
+
     messages = template.format_messages(concept=user_input)
 
-    # OpenAI 모델 호출
     llm = ChatOpenAI(model="gpt-4", temperature=0.7)
     response = llm.invoke(messages)
     generated_prompt = response.content.strip()
 
-    # 상태에 저장 후 반환
-    state["original_prompt"] = generated_prompt
-    return state
+    logger.info("[Prompt Node] Generated cinematic prompt.")
+    logger.debug(f"[Prompt Node] Prompt Output: {generated_prompt}")
+
+    return {"original_prompt": generated_prompt}

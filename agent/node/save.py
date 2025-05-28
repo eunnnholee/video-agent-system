@@ -1,19 +1,34 @@
-from agent.state import VideoAgentState
 from modules.history_manager import save_prompt_history
+from modules.prompt_editor import get_diff
+import logging
+from agent.state import VideoAgentState
 
-def save_history_node(state: VideoAgentState) -> VideoAgentState:
-    """
-    프롬프트 히스토리(JSON)를 저장하는 노드.
-    state["save_confirmed"]가 True일 경우에만 저장 수행.
-    """
+logger = logging.getLogger(__name__)
+
+def save_prompt_node(state: VideoAgentState) -> VideoAgentState:
     if state.get("save_confirmed"):
+        original = state.get("original_prompt", "").strip()
+        edited = state.get("edited_prompt", "").strip() or original
+
+        # diff가 없거나 잘못된 경우 자동 생성
+        if "diff" not in state or not isinstance(state["diff"], list) or not state["diff"]:
+            diff = get_diff(original, edited)
+            state["diff"] = diff
+            logger.debug("[Save Node] Diff auto-generated due to missing or invalid diff.")
+
         filename = save_prompt_history(
-            state.get("original_prompt", ""),
-            state.get("edited_prompt", ""),
-            state.get("diff", [])
+            original,
+            edited,
+            state["diff"]
         )
-        print(f"프롬프트 히스토리 저장됨: {filename}")
+        state["saved_filename"] = filename
+
+        logger.info(f"[Save Node] Prompt history saved to {filename}")
+        logger.debug(f"[Save Node] Original: {original}")
+        logger.debug(f"[Save Node] Edited: {edited}")
+        logger.debug(f"[Save Node] Diff: {state['diff']}")
     else:
-        print("저장 생략됨 (save_confirmed=False)")
+        logger.info("[Save Node] Save not confirmed; skipping history save.")
+        state["saved_filename"] = None
 
     return state
