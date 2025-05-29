@@ -26,15 +26,13 @@ def generate_placeholder_video(text: str, output_path: str = "sample_videos/samp
     # 텍스트 정리
     safe_text = sanitize_text(text)
 
-    font_path = "C:/Windows/Fonts/arial.ttf"
-
     try:
         (
             ffmpeg
             .input("color=c=black:s=1280x720:d=10", f='lavfi')
             .output(
                 output_path,
-                vf=f"drawtext=fontfile='{font_path}':text='{safe_text}':fontcolor=white:fontsize=36:x=(w-text_w)/2:y=(h-text_h)/2",
+                vf=f"drawtext=text='{safe_text}':fontcolor=white:fontsize=36:x=(w-text_w)/2:y=(h-text_h)/2",
                 vcodec='libx264',
                 pix_fmt='yuv420p'
             )

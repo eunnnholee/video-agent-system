@@ -1,0 +1,24 @@
+{
+    "id": "5d43679d",
+    "timestamp": "2025-05-29T09:47:11.421480",
+    "original": "A video of a dancing cat",
+    "edited": "A cute white kitten spinning on a disco floor",
+    "diff": [
+        "--- ",
+        "+++ ",
+        "@@ -1,6 +1,9 @@",
+        " A",
+        "-video",
+        "-of",
+        "+cute",
+        "+white",
+        "+kitten",
+        "+spinning",
+        "+on",
+        " a",
+        "-dancing",
+        "-cat",
+        "+disco",
+        "+floor"
+    ]
+}
