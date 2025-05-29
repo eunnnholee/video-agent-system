@@ -1,5 +1,5 @@
 from pathlib import Path
-from langchain_core.prompts import ChatPromptTemplate
+from jinja2 import Template
 from langchain_openai import ChatOpenAI
 import logging
 
@@ -12,15 +12,18 @@ def generate_prompt_node(state: dict) -> dict:
 
     logger.info(f"[Prompt Node] Received user_input: {user_input}")
 
-    # 템플릿 로드
+    # 1) Jinja2 템플릿 로드 & 렌더링
     template_path = Path("agent/templates/video_prompt.jinja")
     template_str = template_path.read_text(encoding="utf-8")
-    template = ChatPromptTemplate.from_template(template_str)
+    logger.debug(f'####[template_str] {template_str}####')
 
-    messages = template.format_messages(concept=user_input)
+    jinja = Template(template_str)
+    rendered = jinja.render(concept=user_input)
+    logger.debug(f"@@@@[Prompt Node] Rendered prompt]@@@@\n{rendered}")
 
+    # 2) LLM 호출 (rendered 문자열을 user 메시지로 전달)
     llm = ChatOpenAI(model="gpt-4", temperature=0.7)
-    response = llm.invoke(messages)
+    response = llm.invoke([{"role": "user", "content": rendered}])
     generated_prompt = response.content.strip()
 
     logger.info("[Prompt Node] Generated cinematic prompt.")
