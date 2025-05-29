@@ -1,25 +1,22 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 import asyncio
-
-from agent.graph.prompt_graph import graph_generate_prompt
-from agent.graph.edit_graph import edit_agent_app
-from agent.graph.save_graph import save_agent_app
-from agent.graph.video_graph import video_agent_app
-
-from agent.graph.history_guided_graph import history_guided_graph
-
 import time
+
+# LangGraph 통합 워크플로우
+from agent.graph.video_agent_graph import video_agent_app
+from agent.graph.prompt_graph import graph_generate_prompt
+from agent.graph.history_guided_graph import history_guided_graph
 
 router = APIRouter()
 
-
-# Pydantic 입력 모델
+# --- Pydantic 요청 모델 ---
 class UserInputRequest(BaseModel):
     user_input: str
 
 
 class EditConfirmRequest(BaseModel):
+    user_input: str  
     original_prompt: str
     edited_prompt: str
     save_confirmed: bool = True
@@ -29,6 +26,7 @@ class HistoryRequest(BaseModel):
     user_input: str
 
 
+# --- 1. 최초 프롬프트 생성 ---
 @router.post("/start")
 async def start_prompt_generation(req: UserInputRequest):
     def run_prompt():
@@ -39,22 +37,20 @@ async def start_prompt_generation(req: UserInputRequest):
     return result
 
 
+# --- 2. 수정된 프롬프트 기반 영상 생성 + 기록 ---
 @router.post("/edit-confirm")
 async def edit_and_save(req: EditConfirmRequest):
     start = time.time()
 
     def run_agents():
         state = {
+            "user_input": req.user_input,
             "original_prompt": req.original_prompt,
             "edited_prompt": req.edited_prompt,
             "save_confirmed": req.save_confirmed,
         }
 
-        state = edit_agent_app.invoke(state)
-        state = save_agent_app.invoke(state)
-        state = video_agent_app.invoke(state)
-
-        return state
+        return video_agent_app.invoke(state)
 
     try:
         result = await asyncio.to_thread(run_agents)
@@ -66,6 +62,7 @@ async def edit_and_save(req: EditConfirmRequest):
         raise e
 
 
+# --- 3. 이력 기반 추천 ---
 @router.post("/history-recommend")
 async def history_prompt(req: HistoryRequest):
     def run_history():

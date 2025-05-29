@@ -40,6 +40,7 @@ if edited_prompt.strip():
 if st.button("📦 최종 반영 및 영상 생성"):
     try:
         req = {
+            "user_input": st.session_state.state.get("user_input", ""),
             "original_prompt": st.session_state.state.get("original_prompt", ""),
             "edited_prompt": st.session_state.state.get("edited_prompt", ""),
             "save_confirmed": st.session_state.state.get("save_confirmed", True),
@@ -51,7 +52,7 @@ if st.button("📦 최종 반영 및 영상 생성"):
 
         # 결과 출력
         st.subheader("📌 최종 프롬프트")
-        st.code(data["edited_prompt"])
+        st.code(data["final_prompt"])
         st.subheader("🧾 수정 차이")
         if data.get("diff"):
             st.code("\n".join(data["diff"]), language="diff")
