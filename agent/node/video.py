@@ -17,18 +17,27 @@
 
 #     return state
 
+
 from agent.state import VideoAgentState
 from modules.runway_api import generate_video_from_text
+from modules.prompt_optimizer import optimize_prompt_with_gpt
 
 def generate_video_node(state: VideoAgentState) -> VideoAgentState:
     """
-    텍스트 기반 영상 생성을 위해 Runway API를 호출하고, 생성된 영상 URL을 state에 저장
+    텍스트 기반 영상 생성을 위해 프롬프트를 최적화한 후
+    Runway API를 호출하여 생성된 영상 URL을 state에 저장합니다.
     """
-    prompt = state.get("edited_prompt", "").strip()
-    if not prompt:
+    original_prompt = state.get("edited_prompt", "").strip()
+    if not original_prompt:
         raise ValueError("edited_prompt is missing")
 
-    video_url = generate_video_from_text(prompt, num_frames=250)
+    # 프롬프트 최적화 (한 줄짜리 시각 중심 표현)
+    optimized_prompt = optimize_prompt_with_gpt(original_prompt)
+    state["optimized_prompt"] = optimized_prompt  # 기록용
+
+    # 영상 생성
+    video_url = generate_video_from_text(optimized_prompt, num_frames=250)
     state["video_path"] = video_url
 
     return state
+
