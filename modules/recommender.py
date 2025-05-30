@@ -81,7 +81,7 @@ def find_most_similar_prompt(user_input: str) -> Optional[Tuple[str, str, dict, 
             print(f"[Error comparing with history]: {e}")
             continue
 
-    if best_score >= 0.80 and best_result:
+    if best_score >= 0.65 and best_result:
         return best_result
     else:
         latest = get_latest_history(histories)

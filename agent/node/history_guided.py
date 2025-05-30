@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # 전역 설정
 TEMPLATE_PATH = Path("agent/templates/history_guided_prompt.jinja")
-LLM = ChatOpenAI(model="gpt-4", temperature=0.7, max_tokens=300)
+LLM = ChatOpenAI(model="gpt-4", temperature=0.7, max_tokens=800)
 
 def load_template(path: Path) -> Template:
     return Template(path.read_text(encoding="utf-8"))

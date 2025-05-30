@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import streamlit.components.v1 as components
-import time
+import streamlit as st
 
 st.set_page_config(page_title="LangGraph 영상 생성 시스템", layout="wide")
 
@@ -21,7 +21,10 @@ st.title("LangGraph 영상 생성 에이전트")
 with st.container():
     st.subheader("1. 자연어 프롬프트 입력")
     with st.form(key="user-input-form", clear_on_submit=True):
-        user_input = st.text_input("원하는 영상의 느낌을 입력하세요", placeholder="예: 귀여운 강아지가 공원에서 뛰노는 장면")
+        user_input = st.text_input(
+            "원하는 영상의 느낌을 입력하세요",
+            placeholder="예: 귀여운 강아지가 공원에서 뛰노는 장면",
+        )
         submitted = st.form_submit_button("프롬프트 생성")
         if submitted and user_input:
             st.session_state.state["user_input"] = user_input
@@ -30,16 +33,26 @@ with st.container():
                 res.raise_for_status()
                 data = res.json()
                 st.session_state.state.update(data)
-                st.session_state.chat_history.append({"role": "user", "content": user_input})
-                st.session_state.chat_history.append({"role": "bot", "content": data["original_prompt"]})
+                st.session_state.chat_history.append(
+                    {"role": "user", "content": user_input}
+                )
+                st.session_state.chat_history.append(
+                    {"role": "bot", "content": data["original_prompt"]}
+                )
     if "original_prompt" in st.session_state.state:
-        st.text_area("생성된 프롬프트", value=st.session_state.state["original_prompt"], height=100)
+        st.text_area(
+            "생성된 프롬프트",
+            value=st.session_state.state["original_prompt"],
+            height=100,
+        )
 
 # 수정 및 diff 섹션
 with st.container():
     st.subheader("2. 프롬프트 수정 및 차이점 확인")
     with st.form(key="diff-preview-form"):
-        edited_prompt = st.text_area("수정할 프롬프트", height=150, placeholder="위 프롬프트를 수정해보세요...")
+        edited_prompt = st.text_area(
+            "수정할 프롬프트", height=150, placeholder="위 프롬프트를 수정해보세요..."
+        )
         st.session_state.state["edited_prompt"] = edited_prompt.strip()
         diff_submitted = st.form_submit_button("수정 내용 확인")
 
@@ -47,7 +60,7 @@ with st.container():
         try:
             req = {
                 "original_prompt": st.session_state.state.get("original_prompt", ""),
-                "edited_prompt": st.session_state.state.get("edited_prompt", "")
+                "edited_prompt": st.session_state.state.get("edited_prompt", ""),
             }
             res = requests.post(f"{API_URL}/edit-preview", json=req)
             res.raise_for_status()
@@ -69,41 +82,59 @@ with st.container():
             req = {
                 "user_input": st.session_state.state.get("user_input", ""),
                 "original_prompt": st.session_state.state.get("original_prompt", ""),
-                "edited_prompt": st.session_state.state.get("edited_prompt", "")
+                "edited_prompt": st.session_state.state.get("edited_prompt", ""),
             }
             res = requests.post(f"{API_URL}/edit-confirm", json=req)
             res.raise_for_status()
             data = res.json()
             st.session_state.state.update(data)
-            st.session_state.chat_history.append({"role": "bot", "content": "최종 프롬프트: " + data["final_prompt"]})
+            st.session_state.chat_history.append(
+                {"role": "bot", "content": "최종 프롬프트: " + data["final_prompt"]}
+            )
         except Exception as e:
             st.error("영상 생성 실패")
             st.exception(e)
 
-    if "video_path" in st.session_state.state and "final_prompt" in st.session_state.state:
+    if (
+        "video_path" in st.session_state.state
+        and "final_prompt" in st.session_state.state
+    ):
         st.video(st.session_state.state["video_path"])
-        st.text_area("최종 프롬프트", value=st.session_state.state["final_prompt"], height=100)
+        st.text_area(
+            "최종 프롬프트", value=st.session_state.state["final_prompt"], height=100
+        )
 
 # 추천 프롬프트 및 질문 섹션
 with st.container():
     st.subheader("4. 추천 프롬프트 및 편집 제안")
     if st.button("유사 이력 기반 프롬프트 재생성"):
         try:
-            res = requests.post(f"{API_URL}/history-recommend", json={
-                "user_input": st.session_state.state.get("user_input", "")
-            })
+            res = requests.post(
+                f"{API_URL}/history-recommend",
+                json={"user_input": st.session_state.state.get("user_input", "")},
+            )
             res.raise_for_status()
             result = res.json()
-            st.session_state.state["history_guided_prompt"] = result.get("history_guided_prompt")
-            st.session_state.state["followup_questions"] = result.get("followup_questions", [])
+            st.session_state.state["history_guided_prompt"] = result.get(
+                "history_guided_prompt"
+            )
+            st.session_state.state["followup_questions"] = result.get(
+                "followup_questions", []
+            )
         except Exception as e:
             st.error("추천 프롬프트 생성 실패")
             st.exception(e)
 
     if "history_guided_prompt" in st.session_state.state:
-        st.text_area("추천 프롬프트", value=st.session_state.state["history_guided_prompt"], height=100)
+        st.text_area(
+            "추천 프롬프트",
+            value=st.session_state.state["history_guided_prompt"],
+            height=100,
+        )
         if st.button("추천 프롬프트 적용"):
-            st.session_state.state["edited_prompt"] = st.session_state.state["history_guided_prompt"]
+            st.session_state.state["edited_prompt"] = st.session_state.state[
+                "history_guided_prompt"
+            ]
             st.experimental_rerun()
 
         followup_qs = st.session_state.state.get("followup_questions", [])
