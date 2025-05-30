@@ -10,20 +10,25 @@ from agent.graph.history_guided_graph import history_guided_graph
 
 router = APIRouter()
 
+
 # --- Pydantic 요청 모델 ---
 class UserInputRequest(BaseModel):
     user_input: str
 
 
 class EditConfirmRequest(BaseModel):
-    user_input: str  
+    user_input: str
     original_prompt: str
     edited_prompt: str
-    save_confirmed: bool = True
 
 
 class HistoryRequest(BaseModel):
     user_input: str
+
+
+class EditPreviewRequest(BaseModel):
+    original_prompt: str
+    edited_prompt: str
 
 
 # --- 1. 최초 프롬프트 생성 ---
@@ -47,7 +52,6 @@ async def edit_and_save(req: EditConfirmRequest):
             "user_input": req.user_input,
             "original_prompt": req.original_prompt,
             "edited_prompt": req.edited_prompt,
-            "save_confirmed": req.save_confirmed,
         }
 
         return video_agent_app.invoke(state)
@@ -70,4 +74,20 @@ async def history_prompt(req: HistoryRequest):
         return history_guided_graph.invoke(state)
 
     result = await asyncio.to_thread(run_history)
+    return result
+
+
+# --- 4. 수정 미리보기 (diff_html 반환) ---
+@router.post("/edit-preview")
+async def preview_edit_diff(req: EditPreviewRequest):
+    from agent.node.editor import edit_prompt_node  # 노드 직접 호출
+
+    def run_preview():
+        state = {
+            "original_prompt": req.original_prompt,
+            "edited_prompt": req.edited_prompt,
+        }
+        return edit_prompt_node(state)
+
+    result = await asyncio.to_thread(run_preview)
     return result
