@@ -48,7 +48,7 @@ with st.container():
 
 # 수정 및 diff 섹션
 with st.container():
-    st.subheader("2. 프롬프트 수정 및 차이점 확인")
+    st.subheader("2. 프롬프트 수정")
     with st.form(key="diff-preview-form"):
         edited_prompt = st.text_area(
             "수정할 프롬프트", height=150, placeholder="위 프롬프트를 수정해보세요..."
@@ -78,31 +78,36 @@ with st.container():
 with st.container():
     st.subheader("3. 영상 생성")
     if st.button("최종 반영 및 영상 생성"):
-        try:
-            req = {
-                "user_input": st.session_state.state.get("user_input", ""),
-                "original_prompt": st.session_state.state.get("original_prompt", ""),
-                "edited_prompt": st.session_state.state.get("edited_prompt", ""),
-            }
-            res = requests.post(f"{API_URL}/edit-confirm", json=req)
-            res.raise_for_status()
-            data = res.json()
-            st.session_state.state.update(data)
-            st.session_state.chat_history.append(
-                {"role": "bot", "content": "최종 프롬프트: " + data["final_prompt"]}
-            )
-        except Exception as e:
-            st.error("영상 생성 실패")
-            st.exception(e)
+        with st.spinner("🎬 영상 생성 중... 잠시만 기다려 주세요."):
+            try:
+                req = {
+                    "user_input": st.session_state.state.get("user_input", ""),
+                    "original_prompt": st.session_state.state.get("original_prompt", ""),
+                    "edited_prompt": st.session_state.state.get("edited_prompt", ""),
+                }
+                res = requests.post(f"{API_URL}/edit-confirm", json=req)
+                res.raise_for_status()
+                data = res.json()
+                st.session_state.state.update(data)
+                st.session_state.chat_history.append(
+                    {"role": "bot", "content": "최종 프롬프트: " + data["final_prompt"]}
+                )
+            except Exception as e:
+                st.error("영상 생성 실패")
+                st.exception(e)
 
     if (
         "video_path" in st.session_state.state
         and "final_prompt" in st.session_state.state
     ):
-        st.video(st.session_state.state["video_path"])
-        st.text_area(
-            "최종 프롬프트", value=st.session_state.state["final_prompt"], height=100
-        )
+        video_url = st.session_state.state["video_path"]
+        video_html = f"""
+        <video width="640" height="360" controls>
+            <source src="{video_url}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        """
+        st.markdown(video_html, unsafe_allow_html=True)
 
 # 추천 프롬프트 및 질문 섹션
 with st.container():
@@ -129,13 +134,8 @@ with st.container():
         st.text_area(
             "추천 프롬프트",
             value=st.session_state.state["history_guided_prompt"],
-            height=100,
+            height=300,
         )
-        if st.button("추천 프롬프트 적용"):
-            st.session_state.state["edited_prompt"] = st.session_state.state[
-                "history_guided_prompt"
-            ]
-            st.experimental_rerun()
 
         followup_qs = st.session_state.state.get("followup_questions", [])
         if followup_qs:
@@ -146,5 +146,14 @@ with st.container():
 # 대화 히스토리
 with st.expander("대화 히스토리 보기"):
     for msg in st.session_state.chat_history:
-        role = "사용자" if msg["role"] == "user" else "LangBot"
-        st.markdown(f"- **{role}:** {msg['content']}")
+        role = msg["role"]
+        content = msg["content"]
+
+        if role == "user":
+            st.markdown(f"🧑 **사용자:** {content}")
+        elif role == "bot":
+            if content.startswith("최종 프롬프트:"):
+                final_text = content.replace("최종 프롬프트:", "").strip()
+                st.markdown(f"🤖 **수정된 프롬프트:** {final_text}")
+            else:
+                st.markdown(f"🤖 **생성 프롬프트:** {content}")
