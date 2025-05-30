@@ -1,0 +1,30 @@
+/* styles/diff.css */
+
+table.diff {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: monospace;
+    font-size: 14px;
+    color: white;
+}
+
+.diff_header {
+    background-color: #222;
+    color: #ffd700;
+    text-align: left;
+}
+.diff_next {
+    background-color: #444;
+}
+.diff_add {
+    background-color: #003300;
+    color: #aaffaa;
+}
+.diff_chg {
+    background-color: #333300;
+    color: #ffffaa;
+}
+.diff_sub {
+    background-color: #330000;
+    color: #ffaaaa;
+}
