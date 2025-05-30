@@ -9,24 +9,25 @@ __pycache__/
 # ▶ Streamlit 자동 캐시
 .streamlit/
 
-# ▶ Jupyter 관련 (혹시 사용한 경우)
+# ▶ Jupyter 관련
 .ipynb_checkpoints/
 
-# ▶ 환경 관련
+# ▶ 환경 파일 및 가상환경
 .env
+.env.*
 .venv/
 venv/
 env/
 *.env
 
-# ▶ macOS, Windows
+# ▶ OS별 불필요 파일
 .DS_Store
 Thumbs.db
 
-# ▶ Poetry 관련 (락파일은 포함, 가상환경은 제외)
-poetry.lock
-poetry.toml
+# ▶ VSCode 관련 (optional)
+.vscode/
 
-# ▶ 프로젝트 폴더
-# data/
-# sample_videos/
+# ▶ 기타 캐시 및 임시 파일
+*.egg-info/
+dist/
+build/
