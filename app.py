@@ -49,6 +49,16 @@ for msg in st.session_state.chat_history:
         st.markdown(f"<div class='bot-bubble typing-dots'><span>🤖</span> {content}</div>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
+# 추천 프롬프트 블록
+if "history_guided_prompt" in st.session_state.state:
+    st.markdown("<div class='recommend-box'>", unsafe_allow_html=True)
+    st.markdown("#### 🧠 LangBot의 추천 프롬프트")
+    st.success(st.session_state.state["history_guided_prompt"])
+    if st.button("✅ 추천 프롬프트 적용"):
+        st.session_state.state["edited_prompt"] = st.session_state.state["history_guided_prompt"]
+        st.experimental_rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+
 # 수정 입력 및 Diff 박스
 st.markdown("<div class='edit-section'>", unsafe_allow_html=True)
 with st.form(key="diff-preview-form"):
@@ -57,7 +67,7 @@ with st.form(key="diff-preview-form"):
     diff_submitted = st.form_submit_button("➕ 프롬프트 수정")
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Diff 결과 출력 (같은 박스 외부에서 정리되게)
+# Diff 결과 출력
 if diff_submitted:
     try:
         req = {
@@ -70,7 +80,7 @@ if diff_submitted:
         st.session_state.state.update(preview)
         if preview.get("diff_html"):
             st.markdown("<div class='edit-section'>", unsafe_allow_html=True)
-            components.html(preview["diff_html"], height=300, scrolling=True)
+            components.html(preview["diff_html"], height=180, scrolling=True)
             st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.info("수정된 내용이 없습니다.")
@@ -78,7 +88,7 @@ if diff_submitted:
         st.error("❌ Diff 미리보기 실패")
         st.exception(e)
 
-# 영상 생성
+# 최종 반영 및 영상 생성
 if st.button("📦 최종 반영 및 영상 생성"):
     try:
         req = {
@@ -96,14 +106,54 @@ if st.button("📦 최종 반영 및 영상 생성"):
         st.error("처리 중 오류 발생")
         st.exception(e)
 
-# 유사 프롬프트 재생성
+# 📚 유사 이력 기반 프롬프트 재생성
 if st.button("📚 유사 이력 기반 프롬프트 재생성"):
     try:
-        res = requests.post(f"{API_URL}/history-recommend", json={"user_input": st.session_state.state.get("user_input", "")})
+        existing_video = st.session_state.state.get("video_path")
+        existing_final = st.session_state.state.get("final_prompt")
+
+        res = requests.post(f"{API_URL}/history-recommend", json={
+            "user_input": st.session_state.state.get("user_input", "")
+        })
         res.raise_for_status()
         result = res.json()
-        st.session_state.state.update(result)
-        st.session_state.chat_history.append({"role": "bot", "content": "🧠 LangBot 추천: " + result["history_guided_prompt"]})
+
+        st.session_state.state["history_guided_prompt"] = result.get("history_guided_prompt")
+        st.session_state.state["followup_questions"] = result.get("followup_questions", [])
+
+        # 복구는 여기서
+        if existing_video:
+            st.session_state.state["video_path"] = existing_video
+        if existing_final:
+            st.session_state.state["final_prompt"] = existing_final
+
+        st.session_state.chat_history.append({
+            "role": "bot",
+            "content": "🧠 LangBot 추천: " + result["history_guided_prompt"]
+        })
+
     except Exception as e:
         st.error("추천 프롬프트 생성 실패")
         st.exception(e)
+
+# ✅ 추천 프롬프트 UI 출력
+if "history_guided_prompt" in st.session_state.state:
+    st.markdown("<div class='recommend-box'>", unsafe_allow_html=True)
+    st.markdown("#### 🧠 LangBot의 추천 프롬프트")
+    st.success(st.session_state.state["history_guided_prompt"])
+    if st.button("✅ 추천 프롬프트 적용"):
+        st.session_state.state["edited_prompt"] = st.session_state.state["history_guided_prompt"]
+        st.experimental_rerun()
+
+    followup_qs = st.session_state.state.get("followup_questions", [])
+    if followup_qs:
+        st.markdown("#### 💡 프롬프트 개선을 위한 질문 제안")
+        for q in followup_qs:
+            st.markdown(f"<div class='question'>👉 {q}</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# ✅ 영상 출력은 항상 아래에 고정
+if "video_path" in st.session_state.state and "final_prompt" in st.session_state.state:
+    st.markdown("#### 🎬 생성된 영상")
+    st.video(st.session_state.state["video_path"])
+    st.success("📝 최종 프롬프트: " + st.session_state.state["final_prompt"])

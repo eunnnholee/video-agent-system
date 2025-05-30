@@ -15,7 +15,10 @@ def optimize_prompt_node(state: VideoAgentState) -> VideoAgentState:
     logger.debug(f"[Optimizer Node] 입력: {final_prompt}")
 
     messages = [
-        SystemMessage(content="You are an expert prompt engineer for text-to-image AI."),
+        SystemMessage(content=(
+            "You are an expert prompt engineer for text-to-image AI. "
+            "Always respond in English regardless of the input language."
+        )),
         HumanMessage(content=(
             "Rewrite the following video description into a single-line visual prompt suitable for a text-to-image generation model.\n"
             "- Avoid markdown or bullet formatting\n"
@@ -24,6 +27,7 @@ def optimize_prompt_node(state: VideoAgentState) -> VideoAgentState:
             f"Video Description:\n{final_prompt}"
         ))
     ]
+
 
     llm = ChatOpenAI(model="gpt-4", temperature=0.7)
     response = llm.invoke(messages)

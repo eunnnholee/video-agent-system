@@ -87,3 +87,42 @@ textarea, input {
     50% { opacity: 1; }
     100% { opacity: 0; }
 }
+
+
+/* ✅ 유사 이력 추천 프롬프트 박스 */
+.recommend-box {
+    background-color: #202226;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.recommend-box h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    color: #ddd;
+}
+
+.recommend-box .stMarkdown p {
+    margin-bottom: 1rem;
+    font-size: 15px;
+    color: #eee;
+}
+
+/* 추천 질문 표시용 */
+.recommend-box .question {
+    background-color: #2e2f33;
+    color: #ccc;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    border-left: 4px solid #5c9eff;
+}

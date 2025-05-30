@@ -74,7 +74,11 @@ async def history_prompt(req: HistoryRequest):
         return history_guided_graph.invoke(state)
 
     result = await asyncio.to_thread(run_history)
-    return result
+
+    return {
+        "optimized_prompt": result.get("optimized_prompt", "최적화된 프롬프트 없음"),
+        "question_block": result.get("question_block", "질문 없음"),
+    }
 
 
 # --- 4. 수정 미리보기 (diff_html 반환) ---

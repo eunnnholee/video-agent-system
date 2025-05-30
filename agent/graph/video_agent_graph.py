@@ -12,7 +12,7 @@ builder = StateGraph(VideoAgentState)
 builder.add_node("generate_prompt", generate_prompt_node)
 builder.set_entry_point("generate_prompt")
 
-# 2. 프롬프트 수정 (diff 생성)
+# 2. 프롬프트 수정 (diff_html 생성)
 builder.add_node("edit_prompt", edit_prompt_node)
 builder.add_edge("generate_prompt", "edit_prompt")
 
