@@ -70,11 +70,11 @@ def generate_image_from_text(prompt: str) -> str:
     url = f"{API_BASE_URL}/text_to_image"
     payload = {"promptText": prompt, "model": "gen4_image", "ratio": "1920:1080"}
 
-    logger.info("🚨 이미지 생성 요청 페이로드:")
+    logger.info("이미지 생성 요청 페이로드:")
     logger.debug(payload)
 
     res = requests.post(url, json=payload, headers=RUNWAY_HEADERS)
-    logger.info(f"📡 이미지 생성 응답: {res.status_code}")
+    logger.info(f"이미지 생성 응답: {res.status_code}")
     logger.debug(res.text)
 
     res.raise_for_status()
@@ -96,11 +96,11 @@ def generate_video_from_image(image_url: str, prompt: str, duration: int = 10) -
         "ratio": "1280:720",
     }
 
-    logger.info("🚨 영상 생성 요청 페이로드:")
+    logger.info("영상 생성 요청 페이로드:")
     logger.debug(payload)
 
     res = requests.post(url, json=payload, headers=RUNWAY_HEADERS)
-    logger.info(f"📡 영상 생성 응답: {res.status_code}")
+    logger.info(f"영상 생성 응답: {res.status_code}")
     logger.debug(res.text)
 
     res.raise_for_status()

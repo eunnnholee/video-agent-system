@@ -33,7 +33,7 @@ def get_latest_history(histories: List[dict]) -> Optional[dict]:
 def get_openai_embedding(text: str) -> List[float]:
     cleaned = text.strip()
     if not cleaned:
-        raise ValueError("❌ get_openai_embedding() - 입력이 비어 있음")
+        raise ValueError("get_openai_embedding() - 입력이 비어 있음")
 
     response = client.embeddings.create(
         model="text-embedding-3-small",
@@ -51,12 +51,12 @@ def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
 def find_most_similar_prompt(user_input: str) -> Optional[Tuple[str, str, dict, List[str], bool]]:
     user_input = user_input.strip()
     if not user_input:
-        print("❌ find_most_similar_prompt() - user_input 비어 있음")
+        print("find_most_similar_prompt() - user_input 비어 있음")
         return None
 
     histories = load_all_histories()
     if not histories:
-        print("⚠️ find_most_similar_prompt() - 히스토리 없음")
+        print("find_most_similar_prompt() - 히스토리 없음")
         return None
 
     user_emb = get_openai_embedding(user_input)
@@ -86,7 +86,7 @@ def find_most_similar_prompt(user_input: str) -> Optional[Tuple[str, str, dict, 
     else:
         latest = get_latest_history(histories)
         if latest:
-            print(f"⚠️ 유사도 낮음 (best_score={best_score:.4f}). 최신 기록으로 fallback.")
+            print(f"[유사도 낮음] (best_score={best_score:.4f}). 최신 기록으로 fallback.")
             return (
                 latest["original"],
                 latest["edited"],
