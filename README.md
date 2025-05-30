@@ -89,7 +89,7 @@ poetry run streamlit run app.py
 | 조건                            | 처리 방식                                                                                         |
 | ----------------------------- | --------------------------------------------------------------------------------------------- |
 | JSON 이력 없음 (`result is None`) | `question_generator.py`를 사용하여 의도 기반 힌트 질문 제시 (fallback 질문 추천)                                 |
-| `data/` 폴더에 이력 존재, 유사도 0.8 이상 | `recommender.py`로 유사 JSON 반환 → `history_guided_prompt.jinja` 템플릿을 통해 LLM이 최적화 프롬프트 및 질문 추천 생성 |
+| `data/` 폴더에 이력 존재, 유사도 0.65 이상 | `recommender.py`로 유사 JSON 반환 → `history_guided_prompt.jinja` 템플릿을 통해 LLM이 최적화 프롬프트 및 질문 추천 생성 |
 
 ## 06. 아키텍처 및 디렉토리 구조
 
@@ -116,3 +116,29 @@ poetry run streamlit run app.py
 │   └── prompt_*.json          # 프롬프트 기록
 ├── app.py                     # Streamlit 진입점
 └── README.md
+```
+
+## 07. 시스템 워크플로우
+
+### 기본 워크플로우
+
+```
+사용자 (Streamlit UI)
+├── [입력] ──► FastAPI (/agent/start)
+│              └─ LangGraph(generate_prompt_node)
+├── [프롬프트 수정] ──► FastAPI (/agent/edit-preview)
+│                        └─ LangGraph(edit_prompt_node)
+└── [영상 생성 요청] ──► FastAPI (/agent/edit-confirm)
+                         └─ LangGraph(save→optimize→video)
+                               └─ Runway API 호출
+```
+
+### 유사 이력 기반 추천 워크플로우
+
+```
+사용자 입력
+└─ OpenAI Embedding
+    └─ 유사한 이전 프롬프트 검색
+        ├─ 유사한 프롬프트 존재: 최적화 프롬프트 제공
+        └─ 유사한 프롬프트 없음: fallback 질문 제공
+```
