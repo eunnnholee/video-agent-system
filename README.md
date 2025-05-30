@@ -72,7 +72,7 @@ poetry run streamlit run app.py
 - **Diff 기반 편집 관리**
   - 의미 기반 편집 분석 (명사, 구조, 감정 톤, 동작 추가 등)
   - 편집 의도 자동 추론
-  - difflib 기반 시각적 diff 제공
+  - difflib(html) 기반 시각적 diff 제공
 
 - **영상 생성**
   - Runway API를 통한 실제 영상 생성
