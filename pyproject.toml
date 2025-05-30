@@ -1,35 +1,36 @@
-[project]
+[tool.poetry]
 name = "video-agent-system"
 version = "0.1.0"
 description = "Prompt Optimization-Based Video Agent System"
-authors = [
-    {name = "eunnnholee",email = "zxvaw@naver.com"}
-]
-license = {text = "MIT"}
+authors = ["eunnnholee <zxvaw@naver.com>"]
+license = "MIT"
 readme = "README.md"
-requires-python = ">=3.12,<3.14"
-dependencies = [
-    "streamlit (>=1.45.1,<2.0.0)",
-    "ffmpeg-python (>=0.2.0,<0.3.0)",
-    "langgraph (>=0.4.7,<0.5.0)",
-    "langchain (>=0.3.25,<0.4.0)",
-    "openai (>=1.82.0,<2.0.0)",
-    "langchain-openai (>=0.3.18,<0.4.0)",
-    "python-dotenv (>=1.1.0,<2.0.0)",
-    "fastapi (>=0.115.12,<0.116.0)",
-    "spacy (>=3.8.7,<4.0.0)",
-    "nltk (>=3.9.1,<4.0.0)",
-    "sentence-transformers (>=4.1.0,<5.0.0)",
-    "transformers (>=4.52.3,<5.0.0)",
-    "torch (>=2.7.0,<3.0.0)",
-    "graphviz (>=0.20.3,<0.21.0)"
+packages = [
+    { include = "agent" },
+    { include = "backend" },
+    { include = "modules" }
 ]
 
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.dependencies]
+python = ">=3.12,<3.14"
+streamlit = ">=1.45.1,<2.0.0"
+ffmpeg-python = ">=0.2.0,<0.3.0"
+langgraph = ">=0.4.7,<0.5.0"
+langchain = ">=0.3.25,<0.4.0"
+openai = ">=1.82.0,<2.0.0"
+langchain-openai = ">=0.3.18,<0.4.0"
+python-dotenv = ">=1.1.0,<2.0.0"
+fastapi = ">=0.115.12,<0.116.0"
+spacy = ">=3.8.7,<4.0.0"
+nltk = ">=3.9.1,<4.0.0"
+sentence-transformers = ">=4.1.0,<5.0.0"
+transformers = ">=4.52.3,<5.0.0"
+torch = ">=2.7.0,<3.0.0"
+graphviz = ">=0.20.3,<0.21.0"
 
 [tool.poetry.group.dev.dependencies]
 uvicorn = "^0.34.2"
 
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
