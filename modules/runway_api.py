@@ -30,37 +30,40 @@ API_BASE_URL = "https://api.dev.runwayml.com/v1"
 
 
 def get_task_result(
-    task_id: str, task_type: str, max_retries: int = 20, wait_time: int = 2
+    task_id: str, task_type: str, max_retries: int = 60, wait_time: int = 2
 ) -> str:
     """Runway API의 task 결과에서 이미지/영상 URL 추출"""
-    res = requests.get(f"{API_BASE_URL}/tasks/{task_id}", headers=RUNWAY_HEADERS)
-    res.raise_for_status()
-    data = res.json()
-    status = data.get("status")
-    logger.info(f"[Runway] Task {task_type} 상태: {status}")
+    for attempt in range(max_retries):
+        res = requests.get(f"{API_BASE_URL}/tasks/{task_id}", headers=RUNWAY_HEADERS)
+        res.raise_for_status()
+        data = res.json()
+        status = data.get("status")
+        logger.info(f"[Runway] Task {task_type} 상태 확인: {status} (시도 {attempt + 1}/{max_retries})")
 
-    if status == "SUCCEEDED":
-        output = data.get("output")
+        if status == "SUCCEEDED":
+            output = data.get("output")
 
-        if isinstance(output, str):
-            return output
-        elif isinstance(output, list) and output:
-            if isinstance(output[0], str):
-                return output[0]
-            elif isinstance(output[0], dict):
-                return output[0].get("imageUrl" if task_type == "image" else "videoUrl")
-        elif isinstance(output, dict):
-            return output.get("imageUrl" if task_type == "image" else "videoUrl")
+            if isinstance(output, str):
+                return output
+            elif isinstance(output, list) and output:
+                if isinstance(output[0], str):
+                    return output[0]
+                elif isinstance(output[0], dict):
+                    return output[0].get("imageUrl" if task_type == "image" else "videoUrl")
+            elif isinstance(output, dict):
+                return output.get("imageUrl" if task_type == "image" else "videoUrl")
 
-        logger.error(f"[Runway] 알 수 없는 output 형식: {output}")
-        raise RuntimeError(f"지원되지 않는 output 형식: {output}")
+            logger.error(f"[Runway] 알 수 없는 output 형식: {output}")
+            raise RuntimeError(f"지원되지 않는 output 형식: {output}")
 
-    elif status in ("FAILED", "CANCELLED"):
-        logger.error(f"[Runway] {task_type} 생성 실패: {status}")
-        raise RuntimeError(f"{task_type} 생성 실패: {status}")
+        elif status in ("FAILED", "CANCELLED"):
+            logger.error(f"[Runway] {task_type} 생성 실패: {status}")
+            raise RuntimeError(f"{task_type} 생성 실패: {status}")
 
-    time.sleep(wait_time)
+        time.sleep(wait_time)
+
     raise TimeoutError(f"{task_type} 생성이 너무 오래 걸립니다. task_id: {task_id}")
+
 
 
 def generate_image_from_text(prompt: str) -> str:
