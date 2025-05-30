@@ -1,128 +1,96 @@
-/* ✅ 입력창 */
+/* 기본 공통 스타일 */
 textarea, input {
     border-radius: 8px !important;
-    border: 1px solid #444 !important;
-    background-color: #181a1f !important;
-    color: #eee !important;
     padding: 0.8rem !important;
     font-size: 14px;
     width: 100%;
     box-shadow: none !important;
 }
 
-/* ✅ 라벨 제거 */
 .stTextArea label, .stTextInput label {
     display: none !important;
 }
 
-/* ✅ 버튼 스타일 */
 .stButton > button {
-    background-color: #2c2f36 !important;
-    color: #fff !important;
     border-radius: 8px !important;
     padding: 0.5rem 1.2rem !important;
     font-weight: 600;
-    border: 1px solid #444 !important;
     box-shadow: none;
     transition: 0.2s ease;
 }
 
-.stButton > button:hover {
-    background-color: #3a3e46 !important;
-    transform: scale(1.02);
+/* 🌙 다크 모드 */
+@media (prefers-color-scheme: dark) {
+    textarea, input {
+        border: 1px solid #444 !important;
+        background-color: #181a1f !important;
+        color: #eee !important;
+    }
+
+    .stButton > button {
+        background-color: #2c2f36 !important;
+        color: #fff !important;
+        border: 1px solid #444 !important;
+    }
+
+    .stButton > button:hover {
+        background-color: #3a3e46 !important;
+        transform: scale(1.02);
+    }
+
+    .edit-section {
+        background-color: #1a1b1e;
+        border: 1px solid #2b2c30;
+        color: #eee;
+    }
+
+    .recommend-box {
+        background-color: #202226;
+        border: 1px solid #333;
+        color: #eee;
+    }
+
+    .recommend-box .question {
+        background-color: #2e2f33;
+        color: #ccc;
+        border-left: 4px solid #5c9eff;
+    }
 }
 
-/* ✅ Diff 카드 스타일 */
-.edit-section {
-    background-color: #1a1b1e;
-    border: 1px solid #2b2c30;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    margin: 2rem auto;
-    max-width: 800px;
-}
+/* ☀️ 라이트 모드 */
+@media (prefers-color-scheme: light) {
+    textarea, input {
+        border: 1px solid #ccc !important;
+        background-color: #fff !important;
+        color: #000 !important;
+    }
 
-/* 🎬 챗박스 유지 */
-.chat-box {
-    max-width: 800px;
-    margin: auto;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
+    .stButton > button {
+        background-color: #f0f0f0 !important;
+        color: #000 !important;
+        border: 1px solid #ccc !important;
+    }
 
-.user-bubble {
-    align-self: flex-end;
-    background-color: #007bff;
-    color: white;
-    padding: 12px 16px;
-    border-radius: 16px 16px 4px 16px;
-    max-width: 80%;
-    font-size: 15px;
-    line-height: 1.5;
-}
+    .stButton > button:hover {
+        background-color: #e4e4e4 !important;
+        transform: scale(1.02);
+    }
 
-.bot-bubble {
-    align-self: flex-start;
-    background-color: #2e2e2e;
-    color: #fff;
-    padding: 12px 16px;
-    border-radius: 16px 16px 16px 4px;
-    max-width: 80%;
-    font-size: 15px;
-    line-height: 1.5;
-}
+    .edit-section {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        color: #000;
+    }
 
-.typing-dots::after {
-    content: '⠇';
-    animation: blink 1s steps(1, end) infinite;
-    margin-left: 6px;
-    color: #aaa;
-}
+    .recommend-box {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        color: #000;
+    }
 
-@keyframes blink {
-    0% { opacity: 0; }
-    50% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-
-/* ✅ 유사 이력 추천 프롬프트 박스 */
-.recommend-box {
-    background-color: #202226;
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 1.5rem 2rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.recommend-box h4 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-    color: #ddd;
-}
-
-.recommend-box .stMarkdown p {
-    margin-bottom: 1rem;
-    font-size: 15px;
-    color: #eee;
-}
-
-/* 추천 질문 표시용 */
-.recommend-box .question {
-    background-color: #2e2f33;
-    color: #ccc;
-    padding: 10px 16px;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    font-size: 14px;
-    border-left: 4px solid #5c9eff;
+    .recommend-box .question {
+        background-color: #eef2fb;
+        color: #333;
+        border-left: 4px solid #5c9eff;
+    }
 }
