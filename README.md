@@ -63,6 +63,9 @@ poetry run streamlit run app.py
 - 과거 이력 기반 추천 → 최적화된 프롬프트 및 편집 질문 제안
 - 전체 대화 히스토리 제공
 
+![image](https://github.com/user-attachments/assets/cacad6e6-24b8-4619-be51-e34bcd89cde3)
+
+
 ## 05. 주요 기능
 
 - **Prompt 생성 및 최적화**
