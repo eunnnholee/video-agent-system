@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, List, Dict
 
 class VideoAgentState(TypedDict):
     user_input: str                               # 사용자가 입력한 자연어
@@ -12,3 +12,4 @@ class VideoAgentState(TypedDict):
     history_guided_prompt: Optional[str]          # 과거 이력 기반 GPT 재추천 프롬프트
     diff_json: Optional[dict]                     # 의미 기반 diff 결과
     intentions: Optional[list[str]]               # 편집 의도
+    chat_memory: Optional[List[Dict]]             # 대화 기억 저장

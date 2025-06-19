@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import streamlit.components.v1 as components
 import streamlit as st
+import uuid
 
 st.set_page_config(page_title="LangGraph 영상 생성 시스템", layout="wide")
 
@@ -14,6 +15,8 @@ if "state" not in st.session_state:
     st.session_state.state = {}
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
 
 st.title("LangGraph 영상 생성 에이전트")
 
@@ -29,7 +32,13 @@ with st.container():
         if submitted and user_input:
             st.session_state.state["user_input"] = user_input
             with st.spinner("프롬프트 생성 중..."):
-                res = requests.post(f"{API_URL}/start", json={"user_input": user_input})
+                res = requests.post(
+                    f"{API_URL}/start", 
+                    json={
+                        "user_input": user_input,
+                        "session_id": st.session_state.session_id
+                    }
+                )
                 res.raise_for_status()
                 data = res.json()
                 st.session_state.state.update(data)
@@ -39,6 +48,9 @@ with st.container():
                 st.session_state.chat_history.append(
                     {"role": "bot", "content": data["original_prompt"]}
                 )
+                # 세션 ID 업데이트
+                if "session_id" in data:
+                    st.session_state.session_id = data["session_id"]
     if "original_prompt" in st.session_state.state:
         st.text_area(
             "생성된 프롬프트",
@@ -61,6 +73,7 @@ with st.container():
             req = {
                 "original_prompt": st.session_state.state.get("original_prompt", ""),
                 "edited_prompt": st.session_state.state.get("edited_prompt", ""),
+                "session_id": st.session_state.session_id
             }
             res = requests.post(f"{API_URL}/edit-preview", json=req)
             res.raise_for_status()
@@ -70,6 +83,9 @@ with st.container():
                 components.html(preview["diff_html"], height=200, scrolling=True)
             else:
                 st.info("수정된 내용이 없습니다.")
+            # 세션 ID 업데이트
+            if "session_id" in preview:
+                st.session_state.session_id = preview["session_id"]
         except Exception as e:
             st.error("Diff 미리보기 실패")
             st.exception(e)
@@ -84,6 +100,7 @@ with st.container():
                     "user_input": st.session_state.state.get("user_input", ""),
                     "original_prompt": st.session_state.state.get("original_prompt", ""),
                     "edited_prompt": st.session_state.state.get("edited_prompt", ""),
+                    "session_id": st.session_state.session_id
                 }
                 res = requests.post(f"{API_URL}/edit-confirm", json=req)
                 res.raise_for_status()
@@ -92,6 +109,9 @@ with st.container():
                 st.session_state.chat_history.append(
                     {"role": "bot", "content": "최종 프롬프트: " + data["final_prompt"]}
                 )
+                # 세션 ID 업데이트
+                if "session_id" in data:
+                    st.session_state.session_id = data["session_id"]
             except Exception as e:
                 st.error("영상 생성 실패")
                 st.exception(e)
@@ -116,7 +136,10 @@ with st.container():
         try:
             res = requests.post(
                 f"{API_URL}/history-recommend",
-                json={"user_input": st.session_state.state.get("user_input", "")},
+                json={
+                    "user_input": st.session_state.state.get("user_input", ""),
+                    "session_id": st.session_state.session_id
+                }
             )
             res.raise_for_status()
             result = res.json()
@@ -126,6 +149,9 @@ with st.container():
             st.session_state.state["followup_questions"] = result.get(
                 "followup_questions", []
             )
+            # 세션 ID 업데이트
+            if "session_id" in result:
+                st.session_state.session_id = result["session_id"]
         except Exception as e:
             st.error("추천 프롬프트 생성 실패")
             st.exception(e)
@@ -142,6 +168,9 @@ with st.container():
             st.markdown("#### 편집 제안 질문")
             for q in followup_qs:
                 st.markdown(f"- {q}")
+
+# 세션 ID 표시 (디버깅용, 실제 사용 시 숨김 처리 가능)
+st.sidebar.text(f"세션 ID: {st.session_state.session_id}")
 
 # 대화 히스토리
 with st.expander("대화 히스토리 보기"):
