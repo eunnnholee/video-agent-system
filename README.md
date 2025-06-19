@@ -1,4 +1,3 @@
-
 # 📽️ Prompt Optimization-Based Video Generation Agent System
 
 ## 01. 프로젝트에 대한 정보
@@ -36,8 +35,8 @@ poetry install
 echo "OPENAI_API_KEY=your_openai_api_key" >> .env
 echo "RUNWAY_API_KEY=your_runway_api_key" >> .env
 
-# Diff 분석을 위한 모델 설치치
-poetry run python -m spacy download en_core_web_sm
+# Diff 분석을 위한 모델 설치
+poetry run python -m spacy download ko_core_news_sm
 
 # FastAPI 서버 실행
 poetry run uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
@@ -52,8 +51,9 @@ poetry run streamlit run app.py
 - **Backend**: FastAPI, LangGraph
 - **LLM Integration**: OpenAI GPT-4
 - **Video API**: Runway Gen-4 Image & Gen-4 Turbo
-- **Diff 분석**: difflib, spaCy, sentence-transformers, HuggingFace emotion classifier
-- **Embedding & Similarity**: OpenAI Embedding, cosine similarity
+- **Diff 분석**: difflib, spaCy(한국어 모델), sentence-transformers, HuggingFace emotion classifier
+- **Embedding & Similarity**: OpenAI Embedding, cosine similarity, ChromaDB
+- **다국어 지원**: 한국어 spaCy 모델, 다국어 임베딩 모델
 
 ## 04. 화면 구성
 
@@ -87,6 +87,10 @@ poetry run streamlit run app.py
 - **질문 추천**
   - 편집 가이드용 질문 자동 제안
 
+- **다국어 지원**
+  - 한국어 텍스트 분석 (ko_core_news_sm)
+  - 다국어 임베딩 모델 (paraphrase-multilingual-MiniLM-L12-v2)
+
 #### 질문 추천 경로 정리
 
 | 조건                            | 처리 방식                                                                                         |
@@ -112,11 +116,13 @@ poetry run streamlit run app.py
 │   ├── intent_infer.py        # 편집 의도 추론
 │   ├── recommender.py         # 유사 프롬프트 추천
 │   ├── history_manager.py     # 프롬프트 저장
+│   ├── vector_store.py        # ChromaDB 벡터 저장소
 │   └── runway_api.py          # Runway API 호출
 ├── styles/
 │   └── main.css, diff.css
 ├── data/
 │   └── prompt_*.json          # 프롬프트 기록
+├── chroma_db/                 # 벡터 데이터베이스 저장소
 ├── app.py                     # Streamlit 진입점
 └── README.md
 ```
@@ -140,8 +146,36 @@ poetry run streamlit run app.py
 
 ```
 사용자 입력
-└─ OpenAI Embedding
+└─ ChromaDB 벡터 검색
     └─ 유사한 이전 프롬프트 검색
         ├─ 유사한 프롬프트 존재: 최적화 프롬프트 제공
         └─ 유사한 프롬프트 없음: 가장 최신 JSON 기반 질문 제공
 ```
+
+## 08. 개발 진행 상황 및 Todo List
+
+### 완료된 작업 ✅
+
+- [x] 기본 시스템 아키텍처 설계 및 구현
+- [x] LangGraph 기반 워크플로우 구축
+- [x] Streamlit UI 개발
+- [x] FastAPI 백엔드 서버 구현
+- [x] 의미 기반 Diff 분석 기능 구현
+- [x] 편집 의도 추론 기능 구현
+- [x] Runway API 연동 (이미지 및 영상 생성)
+- [x] 프롬프트 저장 및 관리 기능 구현
+- [x] 세션 관리 기능 추가
+- [x] ChromaDB 벡터 데이터베이스 통합
+  - [x] 효율적인 임베딩 저장 및 검색 구현
+  - [x] 실시간 임베딩 생성 대신 캐싱 방식 적용
+  - [x] JSON 파일과 벡터 DB 동시 저장 구현
+  - [x] 서버 시작 시 자동 데이터베이스 초기화
+- [x] 다국어 지원 기능 추가
+  - [x] 한국어 spaCy 모델(ko_core_news_sm) 통합
+  - [x] 다국어 임베딩 모델 적용
+
+### 향후 계획 📝
+
+- [ ] 한국어 감정 분석 모델 통합
+- [ ] spaCy 모델 비교 (Eng vs Ko)
+

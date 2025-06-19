@@ -5,14 +5,13 @@ from difflib import SequenceMatcher
 from transformers import pipeline
 
 # 모델 로딩
-nlp = spacy.load("en_core_web_sm")
-embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+nlp = spacy.load("ko_core_news_sm")  # 한국어 모델
+embedder = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")  # 다국어 지원 모델
 emotion_classifier = pipeline(
     "text-classification",
     model="bhadresh-savani/distilbert-base-uncased-emotion",
     top_k=3,
 )
-
 
 # 감정 분포 추출
 def get_top_emotions(text: str) -> list[str]:
@@ -33,9 +32,10 @@ def get_sim_score(text1, text2) -> float:
         return 0.0
 
 
-# 명사 추출 및 변경 감지
+# 명사 추출 및 변경 감지 (한국어 처리)
 def extract_nouns(doc):
-    return [token.text for token in doc if token.pos_ in {"NOUN", "PROPN"}]
+    # 한국어 명사 추출 (NNG: 일반 명사, NNP: 고유 명사)
+    return [token.text for token in doc if token.pos_ in {"NOUN", "PROPN"} or (hasattr(token, 'tag_') and token.tag_ in {"NNG", "NNP"})]
 
 
 def get_noun_diff(doc_orig, doc_edit):
@@ -106,13 +106,15 @@ def classify_diff(original_text: str, edited_text: str) -> dict:
             }
         )
 
-    # 4. 동작 추가 감지
-    verbs_o = {t.lemma_ for t in doc_orig if t.pos_ == "VERB"}
-    verbs_e = {t.lemma_ for t in doc_edit if t.pos_ == "VERB"}
+    # 4. 동작 추가 감지 (한국어 처리)
+    # 한국어에서는 동사(VERB)와 형용사(ADJ)를 모두 확인
+    verbs_o = {t.lemma_ for t in doc_orig if t.pos_ in {"VERB", "ADJ"}}
+    verbs_e = {t.lemma_ for t in doc_edit if t.pos_ in {"VERB", "ADJ"}}
     new_verbs = verbs_e - verbs_o
 
     for token in doc_edit:
-        if token.lemma_ in new_verbs and token.pos_ == "VERB":
+        if token.lemma_ in new_verbs and token.pos_ in {"VERB", "ADJ"}:
+            # 한국어 구문 추출 (의존성 구문 분석)
             phrase = " ".join([t.text for t in token.subtree])
             if len(phrase.split()) > 1:
                 diff_json["action_addition"].append(
