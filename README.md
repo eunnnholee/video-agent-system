@@ -63,6 +63,9 @@ poetry run streamlit run app.py
 - 과거 이력 기반 추천 → 최적화된 프롬프트 및 편집 질문 제안
 - 전체 대화 히스토리 제공
 
+![image](https://github.com/user-attachments/assets/cacad6e6-24b8-4619-be51-e34bcd89cde3)
+
+
 ## 05. 주요 기능
 
 - **Prompt 생성 및 최적화**
@@ -72,7 +75,7 @@ poetry run streamlit run app.py
 - **Diff 기반 편집 관리**
   - 의미 기반 편집 분석 (명사, 구조, 감정 톤, 동작 추가 등)
   - 편집 의도 자동 추론
-  - difflib 기반 시각적 diff 제공
+  - difflib(html) 기반 시각적 diff 제공
 
 - **영상 생성**
   - Runway API를 통한 실제 영상 생성
@@ -88,7 +91,7 @@ poetry run streamlit run app.py
 
 | 조건                            | 처리 방식                                                                                         |
 | ----------------------------- | --------------------------------------------------------------------------------------------- |
-| JSON 이력 없음 (`result is None`) | `question_generator.py`를 사용하여 의도 기반 힌트 질문 제시 (fallback 질문 추천)                                 |
+| JSON 이력 없음 (`result is None`) | 가장 최신에 저장된 JSON 기반 LLM이 최적화 프롬프트 및 질문 추천 생성                           |
 | `data/` 폴더에 이력 존재, 유사도 0.65 이상 | `recommender.py`로 유사 JSON 반환 → `history_guided_prompt.jinja` 템플릿을 통해 LLM이 최적화 프롬프트 및 질문 추천 생성 |
 
 ## 06. 아키텍처 및 디렉토리 구조
@@ -140,5 +143,5 @@ poetry run streamlit run app.py
 └─ OpenAI Embedding
     └─ 유사한 이전 프롬프트 검색
         ├─ 유사한 프롬프트 존재: 최적화 프롬프트 제공
-        └─ 유사한 프롬프트 없음: fallback 질문 제공
+        └─ 유사한 프롬프트 없음: 가장 최신 JSON 기반 질문 제공
 ```
