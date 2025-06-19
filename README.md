@@ -178,4 +178,8 @@ poetry run streamlit run app.py
 
 - [ ] 한국어 감정 분석 모델 통합
 - [ ] spaCy 모델 비교 (Eng vs Ko)
+- [ ] MCP 서버 기반 툴 구현 및 통합
+  - [ ] 외부 MCP 서버에 툴 배포
+  - [ ] API 기반 툴 호출 인터페이스 구현
+  - [ ] 서버리스 아키텍처로 확장성 개선
 
